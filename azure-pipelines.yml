@@ -28,5 +28,6 @@ steps:
   displayName: 'Install Node.js'
 
 - script: |
-    pwd
+    cd $(System.DefaultWorkingDirectory)/$(parameters.package)
+    sh test.sh
   
