@@ -28,8 +28,8 @@ steps:
   displayName: 'Install Node.js'
 
 - script: |
-    echo "Running tests for package: $(parameters.package)"
-    cd $(System.DefaultWorkingDirectory)/$(parameters.package)
+    echo "Running tests for package: ${{ parameters.environment }}"
+    cd $(System.DefaultWorkingDirectory)/${{ parameters.environment }}
     echo "Listing files in $(pwd):"
     ls -al
     ./test.sh
