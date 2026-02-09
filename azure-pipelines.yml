@@ -1,0 +1,32 @@
+pool:
+  vmImage: ubuntu-latest
+
+trigger: none
+
+parameters:
+- name: package
+  type: string
+  displayName: 'Select package to publish'
+  default: 'usf-parity'
+  values:
+  - usf-http
+  - usf-parity
+  - usf-redis
+  - usf-middleware
+  - usf-mssql
+  - usf-mysql
+  - usf-oracle
+  - usf-common
+  - usf-cron
+
+steps:
+- checkout: self
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: '24.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    pwd
+  
