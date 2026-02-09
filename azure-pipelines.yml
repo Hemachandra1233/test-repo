@@ -29,5 +29,5 @@ steps:
 
 - script: |
     cd $(System.DefaultWorkingDirectory)/$(parameters.package)
-    sh test.sh
+    ./test.sh
   
