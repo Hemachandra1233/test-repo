@@ -43,6 +43,17 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
+    set -e
     cd $(System.DefaultWorkingDirectory)/${{ parameters.package }}
+
+    LOCAL_VERSION=$(npm pkg get version | tr -d '"')
+    echo "Local version: $LOCAL_VERSION"
+
+    ADO_VERSION=$(npm view ${{ parameters.package }} version || echo "0.0.0")
+    echo "Version in npm registry: $ADO_VERSION"
+    if [ "$LOCAL_VERSION" = "$ADO_VERSION" ]; then
+      echo "Version $LOCAL_VERSION already exists in npm registry. Skipping publish."
+      exit 0
+    fi
     npm publish
   displayName: 'Publish package to npm'

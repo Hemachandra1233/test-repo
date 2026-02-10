@@ -43,6 +43,13 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
+    set -e
     cd $(System.DefaultWorkingDirectory)/${{ parameters.package }}
-    npm publish
+
+    LOCAL_VERSION=$(npm pkg get version | tr -d '"')
+    echo "Local version: $LOCAL_VERSION"
+
+    ADO_VERSION=$(npm view ${{ parameters.package }} version || echo "0.0.0")
+    echo "Version in npm registry: $ADO_VERSION"
+    
   displayName: 'Publish package to npm'
