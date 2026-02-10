@@ -10,10 +10,10 @@ parameters:
 - name: package
   type: string
   displayName: 'Select package to publish'
-  default: 'usf-parity'
+  default: 'usf-par'
   values:
   - usf-http
-  - usf-parity
+  - usf-par
   - usf-redis
   - usf-middleware
   - usf-mssql
