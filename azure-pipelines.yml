@@ -34,7 +34,7 @@ steps:
 
 - task: npmAuthenticate@0
   inputs:
-    workingFile: .npmrc
+    workingFile: $(System.DefaultWorkingDirectory)/${{ parameters.package }}/.npmrc
   displayName: 'Authenticate with npm registry'
 
 - script: |
