@@ -1,7 +1,10 @@
 pool:
   vmImage: ubuntu-latest
 
-trigger: none
+trigger:
+  branches:
+    include:
+      - master
 
 parameters:
 - name: package
