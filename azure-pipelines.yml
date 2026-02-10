@@ -36,7 +36,7 @@ steps:
 
 - script: |
     cd $(System.DefaultWorkingDirectory)/${{ parameters.package }}
-    npm clean install
+    npm install
   displayName: 'Install dependencies'
 
 - script: |
