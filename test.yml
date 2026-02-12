@@ -1,59 +1,28 @@
-pool:
-  vmImage: ubuntu-latest
-
-trigger:
-  branches:
-    include:
-      - master
-
-parameters:
-- name: package
-  type: string
-  displayName: 'Select package to publish'
-  default: 'usf-parity'
-  values:
-  - usf-http
-  - usf-parity
-  - usf-redis
-  - usf-middleware
-  - usf-mssql
-  - usf-mysql
-  - usf-oracle
-  - usf-common
-  - usf-cron
-
-variables: 
-  NODE_VERSION: '24.x'
-steps:
-- checkout: self
-
-- task: NodeTool@0
-  inputs:
-    versionSpec: ${{ variables.NODE_VERSION }}
-  displayName: 'Install Node.js'
-
-- task: npmAuthenticate@0
-  inputs:
-    workingFile: $(System.DefaultWorkingDirectory)/${{ parameters.package }}/.npmrc
-  displayName: 'Authenticate with npm registry'
-
+# Step 1: Compute whether to publish
 - script: |
     cd $(System.DefaultWorkingDirectory)/${{ parameters.package }}
-    npm install
-  displayName: 'Install dependencies'
-
-- script: |
-    set -e
-    cd $(System.DefaultWorkingDirectory)/${{ parameters.package }}
-
+    
+    # Get local version
     LOCAL_VERSION=$(npm pkg get version | tr -d '"')
     echo "Local version: $LOCAL_VERSION"
 
-    ADO_VERSION=$(npm view ${{ parameters.package }} version || echo "0.0.0")
-    echo "Version in npm registry: $ADO_VERSION"
-    if [ "$LOCAL_VERSION" = "$ADO_VERSION" ]; then
-      echo "Version $LOCAL_VERSION already exists in npm registry. Skipping publish."
-      exit 0
+    # Get latest version from ADO feed
+    ADO_VERSION=$(npm view @usf/${{ parameters.package }} version --registry https://pkgs.dev.azure.com/hemachandrash1019/mvn-example/_packaging/usf-packages/npm/registry/ || echo "0.0.0")
+    echo "ADO version: $ADO_VERSION"
+
+    # Compare versions
+    if [ "$(printf '%s\n' "$LOCAL_VERSION" "$ADO_VERSION" | sort -V | tail -n1)" = "$LOCAL_VERSION" ] && [ "$LOCAL_VERSION" != "$ADO_VERSION" ]; then
+      echo "##vso[task.setvariable variable=ShouldPublish]true"
+      echo "Publishing required: true"
+    else
+      echo "##vso[task.setvariable variable=ShouldPublish]false"
+      echo "Publishing required: false"
     fi
-    npm publish
-  displayName: 'Publish package to npm'
+  displayName: 'Check if package should be published'
+
+# Step 2: Conditional publish
+- script: |
+    cd $(System.DefaultWorkingDirectory)/${{ parameters.package }}
+    npm publish --registry https://pkgs.dev.azure.com/hemachandrash1019/mvn-example/_packaging/usf-packages/npm/registry/
+  displayName: 'Publish package'
+  condition: eq(variables['ShouldPublish'], 'true')
