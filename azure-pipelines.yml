@@ -65,3 +65,4 @@ steps:
     npm publish
   displayName: 'Publish package'
   condition: eq(variables['ShouldPublish'], 'true')
+  
