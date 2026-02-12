@@ -58,4 +58,10 @@ steps:
       echo "##vso[task.setvariable variable=ShouldPublish]false"
       echo "Publishing required: false"
     fi
-  displayName: 'Publish package to npm'
+  displayName: 'Check if package should be published'
+
+- script: |
+    cd $(System.DefaultWorkingDirectory)/${{ parameters.package }}
+    npm publish
+  displayName: 'Publish package'
+  condition: eq(variables['ShouldPublish'], 'true')
